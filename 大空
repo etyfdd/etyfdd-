@@ -1,0 +1,17 @@
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+local Players, LP, Camera = game:GetService("Players"), game:GetService("Players").LocalPlayer, workspace.CurrentCamera
+
+local Win = WindUI:CreateWindow{Title="一撸像溪", Icon="gun", Theme="Dark", Size=UDim2.fromOffset(450,300)}
+local Tab = Win:Tab{Title="战斗", Icon="sword"}
+
+local HBSize, HBEnabled, OldProps = 30, false, {}
+
+local function setHitbox(char, en)
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+    if en then
+        if not OldProps[root] then OldProps[root] = {Size = root.Size, Trans = root.Transparency, Coll = root.CanCollide} end
+        root.Size = Vector3.new(HBSize, HBSize, HBSize)
+        root.Transparency = 0.95
+        root.CanCollide = true
+
