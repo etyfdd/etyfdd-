@@ -1,0 +1,79 @@
+-- 作者euphoria
+-- ATLASTEAM
+-- 2026.5.1
+-- v1
+-- release version
+local v1 = game:GetService("Players")
+local v2 = game:GetService("ReplicatedStorage")
+local v3 = v1.LocalPlayer
+
+local v4 = v2:WaitForChild("RemoteEvents"):WaitForChild("Weapons"):WaitForChild("Swing")
+local v5 = v2:WaitForChild("RemoteEvents"):WaitForChild("Combat"):WaitForChild("HitHumanoid")
+
+local function v6()
+    local v7 = {}
+    for _, v8 in pairs(workspace:GetChildren()) do
+    if (v8:IsA("Folder") or v8:IsA("Model")) and v8 ~= v3.Character then
+    if v8.Name ~= "Players" and v8.Name ~= "Terrain" and v8.Name ~= "Camera" then
+    for _, v9 in pairs(v8:GetDescendants()) do
+    if v9:IsA("Humanoid") and v9.Health > 0 then
+    local v10 = v9.Parent:FindFirstChild("HumanoidRootPart") or v9.Parent.PrimaryPart
+    if v10 and v3.Character and v3.Character:FindFirstChild("HumanoidRootPart") and not v1:GetPlayerFromCharacter(v9.Parent) then
+    local v11 = (v3.Character.HumanoidRootPart.Position - v10.Position).Magnitude
+    table.insert(v7, {h = v9, d = v11})
+    end
+    end
+    end
+    end
+    end
+    end
+    
+    table.sort(v7, function(a, b)
+        return a.d < b.d
+    end)
+    
+    local v12 = {}
+    for i = 1, math.min(3, #v7) do
+        table.insert(v12, v7[i].h)
+    end
+    
+    return v12
+end
+
+task.spawn(function()
+    while true do
+        local v13 = v3.Character and v3.Character:FindFirstChildOfClass("Tool")
+        local v14 = v3.Character and v3.Character:FindFirstChild("Humanoid") and v3.Character.Humanoid:FindFirstChild("Animator")
+        
+        if v13 and v14 then
+            local v15 = v6()
+            if #v15 > 0 then
+                local v16 = v13:GetAttribute("AnimThrustLow") or v13:GetAttribute("DefaultAttack")
+                
+                if v16 and v16 ~= "" then
+                    local v17 = Instance.new("Animation")
+                    v17.AnimationId = "rbxassetid://" .. v16
+                    local v18 = v14:LoadAnimation(v17)
+                    v18:Play()
+                end
+
+                v13:Activate()
+                v4:FireServer()
+                
+                task.wait(0.1)
+                
+                for _, v19 in ipairs(v15) do
+                    task.spawn(function()
+                        v5:FireServer(v13, v19, "Low")
+                    end)
+                end
+                
+                task.wait(0.2)  --间隔
+            else
+                task.wait(0.3)
+            end
+        else
+            task.wait(0.3)
+        end
+    end
+end)
